@@ -199,7 +199,7 @@
     for (var i = 0; i < PHOTOS.length; i++) {
       var safe = PHOTOS[i].replace(/ /g, '%20');
       html += '<figure data-index="' + i + '">';
-      html += '<img src="thumbnails/' + safe + '" alt="" loading="lazy">';
+      html += '<img src="thumbnails/grid/' + safe + '" alt="" loading="lazy">';
       html += '</figure>';
     }
     gallery.innerHTML = html;
