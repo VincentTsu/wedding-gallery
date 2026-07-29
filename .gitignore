@@ -1,0 +1,11 @@
+# Original high-res photos (thumbnails/ stays)
+/DSCF*.jpg
+
+# Scripts & tests
+*.py
+
+# Screenshots
+screenshot-*.png
+
+# Brainstorming artifacts
+.superpowers/

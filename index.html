@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Wedding</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #fdf6f0;
+    color: #5c3d2e;
+    font-family: Georgia, 'Times New Roman', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    text-align: center;
+    padding: 60px 24px 40px;
+  }
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: #c97a6a;
+    margin-bottom: 16px;
+  }
+  .header .names {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: #5c3d2e;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .header .date {
+    font-size: clamp(14px, 2vw, 18px);
+    color: #a08070;
+    letter-spacing: 1px;
+  }
+  .header .divider {
+    width: 60px;
+    height: 1px;
+    background: #e8d4c8;
+    margin: 24px auto 0;
+  }
+
+  .gallery {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+    column-count: 4;
+    column-gap: 12px;
+  }
+  @media (max-width: 1200px) { .gallery { column-count: 3; } }
+  @media (max-width: 768px)  { .gallery { column-count: 2; column-gap: 8px; padding: 0 8px 40px; } }
+  @media (max-width: 480px)  { .gallery { column-count: 1; } }
+
+  .gallery figure {
+    break-inside: avoid;
+    margin-bottom: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f0e8e0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gallery figure:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(92, 61, 46, 0.12);
+  }
+  .gallery figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .gallery figure:hover img {
+    transform: scale(1.02);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.94);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .overlay-image {
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+    user-select: none;
+  }
+
+  .overlay-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 8px;
+    line-height: 1;
+    transition: color 0.2s;
+    font-family: inherit;
+  }
+  .overlay-close:hover { color: #fff; }
+
+  .overlay-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 48px;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 16px;
+    line-height: 1;
+    transition: color 0.2s;
+    font-family: Georgia, serif;
+  }
+  .overlay-nav:hover { color: #fff; }
+  .overlay-nav.prev { left: 8px; }
+  .overlay-nav.next { right: 8px; }
+
+  .overlay-counter {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    letter-spacing: 2px;
+    z-index: 1001;
+  }
+
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>Our Wedding</h1>
+  <div class="names">Xu Zecheng &amp; Chang Hengjia</div>
+  <div class="date">Sep. 6th, 2026</div>
+  <div class="divider"></div>
+</header>
+
+<section class="gallery" id="gallery"></section>
+
+<div class="overlay" id="overlay">
+  <button class="overlay-close" id="btnClose" aria-label="Close">&times;</button>
+  <button class="overlay-nav prev" id="btnPrev" aria-label="Previous">&lsaquo;</button>
+  <button class="overlay-nav next" id="btnNext" aria-label="Next">&rsaquo;</button>
+  <img class="overlay-image" id="overlayImg" src="" alt="">
+  <div class="overlay-counter" id="overlayCounter"></div>
+</div>
+
+<script>
+(function() {
+  var PHOTOS = [
+    "DSCF9431.jpg","DSCF9440.jpg","DSCF9459.jpg","DSCF9460.jpg","DSCF9475.jpg",
+    "DSCF9478.jpg","DSCF9485.jpg","DSCF9495.jpg","DSCF9505.jpg","DSCF9510.jpg",
+    "DSCF9571.jpg","DSCF9586.jpg","DSCF9588.jpg","DSCF9589.jpg","DSCF9591.jpg",
+    "DSCF9596.jpg","DSCF9597.jpg","DSCF9615.jpg","DSCF9619.jpg","DSCF9626.jpg",
+    "DSCF9655.jpg","DSCF9665.jpg","DSCF9713 拷贝.jpg","DSCF9713 拷贝 2.jpg",
+    "DSCF9723.jpg","DSCF9729.jpg","DSCF9744.jpg","DSCF9757.jpg","DSCF9760.jpg",
+    "DSCF9804.jpg","DSCF9805.jpg","DSCF9816.jpg","DSCF9820.jpg","DSCF9839.jpg"
+  ];
+
+  var gallery = document.getElementById('gallery');
+  var overlay = document.getElementById('overlay');
+  var overlayImg = document.getElementById('overlayImg');
+  var overlayCounter = document.getElementById('overlayCounter');
+  var btnClose = document.getElementById('btnClose');
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
+  var currentIndex = 0;
+  var preloaded = {};
+
+  function buildGrid() {
+    var html = '';
+    for (var i = 0; i < PHOTOS.length; i++) {
+      var safe = PHOTOS[i].replace(/ /g, '%20');
+      html += '<figure data-index="' + i + '">';
+      html += '<img src="thumbnails/' + safe + '" alt="" loading="lazy">';
+      html += '</figure>';
+    }
+    gallery.innerHTML = html;
+  }
+
+  function showOverlay(index) {
+    currentIndex = index;
+    var safe = PHOTOS[index].replace(/ /g, '%20');
+    overlayImg.src = 'thumbnails/' + safe;
+    overlayCounter.textContent = (index + 1) + ' / ' + PHOTOS.length;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    preloadAdjacent(index);
+  }
+
+  function hideOverlay() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function prev() {
+    var idx = (currentIndex - 1 + PHOTOS.length) % PHOTOS.length;
+    showOverlay(idx);
+  }
+
+  function next() {
+    var idx = (currentIndex + 1) % PHOTOS.length;
+    showOverlay(idx);
+  }
+
+  function preloadAdjacent(index) {
+    [index - 1, index + 1].forEach(function(i) {
+      if (i < 0 || i >= PHOTOS.length || preloaded[i]) return;
+      var img = new Image();
+      img.src = 'thumbnails/' + PHOTOS[i].replace(/ /g, '%20');
+      preloaded[i] = true;
+    });
+  }
+
+  gallery.addEventListener('click', function(e) {
+    var figure = e.target.closest('figure');
+    if (!figure) return;
+    showOverlay(parseInt(figure.dataset.index));
+  });
+
+  btnClose.addEventListener('click', hideOverlay);
+  btnPrev.addEventListener('click', prev);
+  btnNext.addEventListener('click', next);
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) hideOverlay();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!overlay.classList.contains('active')) return;
+    if (e.key === 'Escape') hideOverlay();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+  });
+
+  var touchStartX = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+  });
+  document.addEventListener('touchend', function(e) {
+    if (!overlay.classList.contains('active')) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 60) {
+      dx > 0 ? prev() : next();
+    }
+  });
+
+  buildGrid();
+})();
+</script>
+
+</body>
+</html>
